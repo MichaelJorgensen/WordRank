@@ -1,0 +1,34 @@
+name: WordRank
+main: com.mike.wordrank.WordRank
+version: 3.0.0 ALPHA
+author: mike101102
+softdepend: [Vault]
+commands:
+    wr:
+        aliases: [wordrank]
+        description: WordRank's main command
+        usuage: /<command>
+permissions:
+    WordRank.*:
+        description: Gives access to all WordRank permissions and commands
+        children:
+            WordRank.add: true
+            WordRank.remove: true
+            WordRank.say: true
+            WordRank.list: true
+            WordRank.info: true
+    WordRank.add:
+        description: Allows you to add a word
+        default: op
+    WordRank.remove:
+        description: Allows you to remove a word
+        default: op
+    WordRank.say:
+        description: Allows you to use any word
+        default: op
+    WordRank.list:
+        description: Allows you to see a list of all words
+        default: op
+    WordRank.info:
+        description: Allows you to see information about any word
+        default: op

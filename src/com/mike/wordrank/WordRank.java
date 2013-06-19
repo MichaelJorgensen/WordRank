@@ -1,5 +1,7 @@
 package com.mike.wordrank;
 
+import java.io.IOException;
+
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.ChatColor;
@@ -9,6 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
 
 import com.mike.wordrank.WordRankTypes.GroupType;
 import com.mike.wordrank.WordRankTypes.RedeemType;
@@ -22,6 +25,7 @@ import com.mike.wordrank.listeners.PlayerListen;
 
 public class WordRank extends JavaPlugin {
 
+	private Metrics metrics;
 	private Server server;
 	private Permission permission;
 	private RedeemType rt;
@@ -58,6 +62,33 @@ public class WordRank extends JavaPlugin {
 		server.getPluginManager().registerEvents(new PlayerListen(this), this);
 		server.getPluginManager().registerEvents(new DebugListen(this), this);
 		debug("Event listeners registered");
+		debug("Setting up Metrics");
+		
+		try {
+			metrics = new Metrics(this);
+			debug("Adding custom data to metrics plotter");
+			
+			metrics.addCustomData(new Metrics.Plotter("Amount of Words") {
+				
+				@Override
+				public int getValue() {
+					return gm.getWords().size();
+				}
+			});
+			
+			metrics.addCustomData(new Metrics.Plotter("Amount of Groups") {
+				
+				@Override
+				public int getValue() {
+					return permission.getGroups().length;
+				}
+			});
+			
+			if (metrics.start()) debug("Metrics setup successfully");
+		} catch (IOException e) {
+			debug("Failed to submit stats");
+		}
+		
 		send("has successfully enabled!");
 	}
 	

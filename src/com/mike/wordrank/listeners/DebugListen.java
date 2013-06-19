@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 
 import com.mike.wordrank.WordRank;
 import com.mike.wordrank.api.events.word.WordAddToConfigEvent;
+import com.mike.wordrank.api.events.word.WordRemoveFromConfigEvent;
 import com.mike.wordrank.api.events.word.WordUseEvent;
 
 public class DebugListen implements Listener {
@@ -22,5 +23,10 @@ public class DebugListen implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onWordAddToConfig(WordAddToConfigEvent event) {
 		WordRank.debug("Word add to config event called, Word: " + event.getWord().getName() + ", Success: " + event.getSuccess() + ", Cancelled: " + event.isCancelled());
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onWordRemoveFromConfig(WordRemoveFromConfigEvent event) {
+		WordRank.debug("Word remove from config event called, Word: " + event.getWord().getName() + ", Success: " + event.getSuccess() + ", Cancelled: " + event.isCancelled());
 	}
 }

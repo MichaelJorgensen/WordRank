@@ -5,7 +5,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import com.mike.wordrank.WordRank;
 import com.mike.wordrank.WordRankTypes.GroupType;
 import com.mike.wordrank.api.config.WordConfig;
+import com.mike.wordrank.api.events.EventHandle;
 import com.mike.wordrank.api.events.word.WordAddToConfigEvent;
+import com.mike.wordrank.api.events.word.WordRemoveFromConfigEvent;
 import com.mike.wordrank.api.word.GroupWord;
 import com.mike.wordrank.api.word.Word;
 
@@ -86,8 +88,13 @@ public class GroupWordManager extends WordManager {
 	public int getUses(String name) {
 		return cfg.getInt("words." + name + ".uses", -1);
 	}
+	
 	public void updateUses(GroupWord word) {
 		config.setSave("words." + word.getName() + ".uses", word.getUses());
+	}
+	
+	public void updateUses(String name, int uses) {
+		config.setSave("words." + name + ".uses", uses);
 	}
 	
 	public GroupWord getWord(String name) {
@@ -96,12 +103,15 @@ public class GroupWordManager extends WordManager {
 		return new GroupWord(name, cfg.getString(p + ".group"), GroupType.getFrom(cfg.getString(p + ".type")), cfg.getInt(p + ".uses"));
 	}
 	
-	public void removeWordFromConfig(String name) {
+	public boolean removeWordFromConfig(String name) {
+		WordRemoveFromConfigEvent event = EventHandle.callWordRemoveFromConfigEvent(getWord(name));
+		if (event.isCancelled()) return event.getSuccess();
 		config.setSave("words." + name, null);
+		return true;
 	}
 	
 	public boolean addWordToConfig(Word word) {
-		WordAddToConfigEvent event = new WordAddToConfigEvent(word, true);
+		WordAddToConfigEvent event = EventHandle.callWordAddToConfigEvent(word);
 		if (event.isCancelled()) return event.getSuccess();
 		
 		if (word instanceof GroupWord) {

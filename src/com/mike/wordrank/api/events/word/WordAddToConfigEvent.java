@@ -11,16 +11,16 @@ public class WordAddToConfigEvent extends Event {
 	private Word word;
 	private boolean success;
 	private boolean cancel;
-	private final HandlerList handler = new HandlerList();
+	private static final HandlerList handler = new HandlerList();
 	
 	/**
 	 * Called just before a word is added to the config, cancelling will stop the word from being added
 	 * @param word
 	 * @param success
 	 */
-	public WordAddToConfigEvent(Word word, boolean success) {
+	public WordAddToConfigEvent(Word word) {
 		this.word = word;
-		this.success = success;
+		this.success = true;
 		this.cancel = false;
 	}
 	
@@ -28,18 +28,38 @@ public class WordAddToConfigEvent extends Event {
 		return handler;
 	}
 	
+	public static HandlerList getHandlerList() {
+		return handler;
+	}
+	
+	/**
+	 * Returns whether the addition to the config was successful or not
+	 * @return success
+	 */
 	public boolean getSuccess() {
 		return success;
 	}
 	
+	/**
+	 * Sets whether or not the word was added to the config
+	 * @param success
+	 */
 	public void setSuccess(boolean success) {
 		this.success = success;
 	}
 	
+	/**
+	 * Returns whether or not the event has been cancelled
+	 * @return cancelled
+	 */
 	public boolean isCancelled() {
 		return cancel;
 	}
 	
+	/**
+	 * Sets the event cancelled to the specified boolean
+	 * @param cancelled
+	 */
 	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
 	}

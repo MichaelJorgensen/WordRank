@@ -17,6 +17,7 @@ import com.mike.wordrank.api.config.MainConfig;
 import com.mike.wordrank.api.config.WordConfig;
 import com.mike.wordrank.api.events.EventHandle;
 import com.mike.wordrank.api.word.GroupWord;
+import com.mike.wordrank.listeners.DebugListen;
 import com.mike.wordrank.listeners.PlayerListen;
 
 public class WordRank extends JavaPlugin {
@@ -55,7 +56,8 @@ public class WordRank extends JavaPlugin {
 		}
 		
 		server.getPluginManager().registerEvents(new PlayerListen(this), this);
-		debug("PlayerListen registered");
+		server.getPluginManager().registerEvents(new DebugListen(this), this);
+		debug("Event listeners registered");
 		send("has successfully enabled!");
 	}
 	
@@ -130,7 +132,7 @@ public class WordRank extends JavaPlugin {
 	public boolean groupWordUse(GroupWord w, Player player) {
 		String word = w.getName();
 		if (gm.getWords().contains(word)) {
-			if (!permission.playerInGroup(player, w.getGroup())) {
+			if (permission.playerInGroup(player, w.getGroup()) && w.getType() == GroupType.Set || !permission.playerInGroup(player, w.getGroup())) {
 				if (w.getUses() == 0) {
 					if (rt.equals(RedeemType.Command)) {
 						player.sendMessage(ChatColor.RED + "This word is out of uses!");
@@ -147,8 +149,8 @@ public class WordRank extends JavaPlugin {
 				permission.playerAddGroup(player, w.getGroup());
 				WordRank.debug("Added group '" + w.getGroup() + "' to player " + player.getName());
 				
-				if (w.getType().equals(GroupType.Set)) player.sendMessage(ChatColor.GOLD + "Your group has been set to " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup());
-				else if (w.getType().equals(GroupType.Add)) player.sendMessage(ChatColor.GOLD + "You have been added to the group " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup());
+				if (w.getType().equals(GroupType.Set)) player.sendMessage(ChatColor.GOLD + "Your group has been set to " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup() + ". " + ChatColor.RED + "You may have to reconnect for changes to take effect.");
+				else if (w.getType().equals(GroupType.Add)) player.sendMessage(ChatColor.GOLD + "You have been added to the group " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup() + ". " + ChatColor.RED + "You may have to reconnect for changes to take effect.");
 				else {
 					player.sendMessage(ChatColor.RED + "You have redeemed the right word, but the Group Word Type is not 'Set' or 'Add'");
 					player.sendMessage(ChatColor.RED + "Please let an administrator know of this problem");
@@ -158,7 +160,8 @@ public class WordRank extends JavaPlugin {
 				if (w.getUses() > 0) w.setUses(w.getUses()-1);
 				gm.updateUses(w);
 				WordRank.send("Player " + player.getName() + " has used the word " + w.getName());
-				WordRank.send("Player " + player.getName() + "'s group has been set to " + w.getGroup() + " and all other groups have been removed from that player by WordRank");
+				if (w.getType().equals(GroupType.Set)) WordRank.send("Player " + player.getName() + "'s group has been set to " + w.getGroup() + " and all other groups have been removed from that player by WordRank");
+				if (w.getType().equals(GroupType.Add)) WordRank.send("Player " + player.getName() + " has had the group " + w.getGroup() + " added to his/her list of groups by WordRank");
 				return true;
 			}
 			if (rt.equals(RedeemType.Command)) {
@@ -226,6 +229,11 @@ public class WordRank extends JavaPlugin {
 				int uses = -1;
 				if (args.length >= 4) {
 					gt = GroupType.getFrom(args[3]);
+				}
+				if (gt.equals(GroupType.Unknown)) {
+					sender.sendMessage(ChatColor.YELLOW + "/wr add [word] [group] (set|add) (# of uses)");
+					sender.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
+					return true;
 				}
 				if (args.length == 5) {
 					try {

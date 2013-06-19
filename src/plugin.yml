@@ -1,6 +1,6 @@
 name: WordRank
 main: com.mike.wordrank.WordRank
-version: 3.0.0 ALPHA
+version: 3.0 Beta
 author: mike101102
 softdepend: [Vault]
 commands:

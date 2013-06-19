@@ -16,3 +16,5 @@ Features
 5. Vault support, meaning this plugin supports 10 different permission plugins
 
 6. Custom events, and if your into it, debug mode
+
+7. Metrics support

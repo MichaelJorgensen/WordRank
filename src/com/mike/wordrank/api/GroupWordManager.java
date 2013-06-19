@@ -100,7 +100,7 @@ public class GroupWordManager extends WordManager {
 	public GroupWord getWord(String name) {
 		if (!wordExists(name)) return null;
 		String p = "words." + name;
-		return new GroupWord(name, cfg.getString(p + ".group"), GroupType.getFrom(cfg.getString(p + ".type")), cfg.getInt(p + ".uses"));
+		return new GroupWord(name, cfg.getString(p + ".group"), GroupType.getFrom(cfg.getString(p + ".type", "Set")), cfg.getInt(p + ".uses", -1));
 	}
 	
 	public boolean removeWordFromConfig(String name) {

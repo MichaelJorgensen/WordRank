@@ -1,6 +1,7 @@
 package com.mike.wordrank;
 
 import java.io.IOException;
+import java.util.Set;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -72,6 +73,7 @@ public class WordRank extends JavaPlugin {
 				
 				@Override
 				public int getValue() {
+					if (gm.getWords() == null) return 0;
 					return gm.getWords().size();
 				}
 			});
@@ -162,8 +164,8 @@ public class WordRank extends JavaPlugin {
 	
 	public boolean groupWordUse(GroupWord w, Player player) {
 		String word = w.getName();
-		if (gm.getWords().contains(word)) {
-			if (permission.playerInGroup(player, w.getGroup()) && w.getType() == GroupType.Set || !permission.playerInGroup(player, w.getGroup())) {
+		if (!(gm.getWords() == null) && gm.getWords().contains(word)) {
+			if (permission.playerInGroup(player, w.getGroup()) && permission.getPlayerGroups(player).length > 1 || !permission.playerInGroup(player, w.getGroup())) {
 				if (w.getUses() == 0) {
 					if (rt.equals(RedeemType.Command)) {
 						player.sendMessage(ChatColor.RED + "This word is out of uses!");
@@ -215,6 +217,7 @@ public class WordRank extends JavaPlugin {
 				s.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
 			}
 			if (s.hasPermission("WordRank.remove")) s.sendMessage(ChatColor.YELLOW + "/wr remove [word]");
+			if (s.hasPermission("WordRank.removeall")) s.sendMessage(ChatColor.YELLOW + "/wr removeall");
 			if (s.hasPermission("WordRank.info")) s.sendMessage(ChatColor.YELLOW + "/wr info [word]");
 			if (s.hasPermission("WordRank.list")) s.sendMessage(ChatColor.YELLOW + "/wr list");
 		} else {
@@ -225,6 +228,7 @@ public class WordRank extends JavaPlugin {
 				s.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
 			}
 			if (s.hasPermission("WordRank.remove")) s.sendMessage(ChatColor.YELLOW + "/wr remove [word]");
+			if (s.hasPermission("WordRank.removeall")) s.sendMessage(ChatColor.YELLOW + "/wr removeall");
 			if (s.hasPermission("WordRank.info")) s.sendMessage(ChatColor.YELLOW + "/wr info [word]");
 			if (s.hasPermission("WordRank.list")) s.sendMessage(ChatColor.YELLOW + "/wr list");
 		}
@@ -314,6 +318,31 @@ public class WordRank extends JavaPlugin {
 				}
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.remove)");
+				return true;
+			}
+		}
+		
+		else if (args[0].equalsIgnoreCase("removeall")) {
+			if (sender.hasPermission("WordRank.removeall")) {
+				if (args.length == 1) {
+					Set<String> list = gm.getWords();
+					int i = 0;
+					if (list.size() == 0) {
+						sender.sendMessage(ChatColor.RED + "There are no words to remove");
+						return true;
+					}
+					for (String f:list) {
+						gm.removeWordFromConfig(f);
+						i++;
+					}
+					sender.sendMessage(ChatColor.GOLD + Integer.toString(i) + ChatColor.RED + " word(s) removed");
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.YELLOW + "/wr removeall");
+					return true;
+				}
+			} else {
+				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.removeall)");
 				return true;
 			}
 		}

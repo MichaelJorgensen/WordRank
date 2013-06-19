@@ -14,6 +14,7 @@ permissions:
         children:
             WordRank.add: true
             WordRank.remove: true
+            WordRank.removeall: true
             WordRank.say: true
             WordRank.list: true
             WordRank.info: true
@@ -22,6 +23,9 @@ permissions:
         default: op
     WordRank.remove:
         description: Allows you to remove a word
+        default: op
+    WordRank.removeall:
+        description: Allows you to remove words
         default: op
     WordRank.say:
         description: Allows you to use any word

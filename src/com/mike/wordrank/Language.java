@@ -63,7 +63,7 @@ public class Language {
 			case Failed_Add_Word: {
 				switch(lang) {
 				case EN_CA: return ChatColor.RED + "Sorry, but the word failed to be added to the config";
-				case French: return ChatColor.RED + ""; // Google translate
+				case French: return ChatColor.RED + "Impossible d'ajouter le mot à la configuration"; // Google translate
 				case German: return ChatColor.RED + "Konnte das Wort zur Konfiguration hinzuzufügen"; // Google translate
 				case Spanish: return ChatColor.RED + "No se pudo añadir la palabra a la configuración"; // Google translate
 				default: return ChatColor.RED + "Failed to add the word to the config";

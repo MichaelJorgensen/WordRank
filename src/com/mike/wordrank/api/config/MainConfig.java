@@ -1,7 +1,5 @@
 package com.mike.wordrank.api.config;
 
-import java.io.File;
-
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.mike.wordrank.WordRank;
@@ -14,8 +12,6 @@ public class MainConfig implements Config {
 	public MainConfig(WordRank plugin) {
 		this.config = plugin.getConfig();
 		config.options().copyDefaults(true);
-		if (!(new File("plugins/CouponCodes/config.yml").exists()))
-			plugin.saveDefaultConfig();
 		plugin.saveConfig();
 	}
 	

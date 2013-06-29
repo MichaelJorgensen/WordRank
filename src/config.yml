@@ -1,15 +1,18 @@
 # This is the main configuration for WordRank
 # If you have questions about this plugin, this configuration, or anything else feel free to ask all
-#  the questions you have on BukkitDev
+#  the questions you have on BukkitDev, I'd be happy to help
 # In the event that you see errors coming from this plugin and are unable to solve them, (i.e. design
 #  flaw in the plugin, io exceptions, etc) please report them on BukkitDev. It helps a lot!
 # If you are interested to see the source code of this plugin, its API (yes it has one) you can view
-#  it on GitHub here:
+#  it on GitHub here: https://github.com/mike101102/WordRank
 # The plugin 'Vault' is required for this plugin to work, I'm too lazy to write code for 30 different
 #  permission plugins when Vault does it all. Make sure an updated version of Vault is installed
+# This plugin uses Metrics, it will collect anonymous data about different plugins. If you would like
+#  to opt out, you can do so by going to /plugins/PluginMetrics/config.yml and change opt-out to true
+#  You can view the stats collected here: http://metrics.griefcraft.com/
+# Syntax for this config's options
+#  redeem_type: [Chat|Command]
+#  debug_mode: [true|false]
 
-# Either 'Chat' or 'Command'. Chat will allow you to say a word in chat to redeem it, command will require you to use /wr redeem [word]
 redeem_type: Chat
-
-# Keep false unless you want to spammed with messages unless you're working out a bug
 debug_mode: false

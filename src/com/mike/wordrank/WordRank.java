@@ -14,6 +14,8 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
+import com.mike.wordrank.Language.Languages;
+import com.mike.wordrank.Language.Msg;
 import com.mike.wordrank.WordRankTypes.GroupType;
 import com.mike.wordrank.WordRankTypes.RedeemType;
 import com.mike.wordrank.api.GroupWordManager;
@@ -30,6 +32,8 @@ public class WordRank extends JavaPlugin {
 	private Server server;
 	private Permission permission;
 	private RedeemType rt;
+	private Languages lang;
+	private Language language;
 	private GroupWordManager gm;
 	private MainConfig mainConfig;
 	private WordConfig wordConfig;
@@ -42,20 +46,22 @@ public class WordRank extends JavaPlugin {
 		wordConfig = new WordConfig(this);
 		debug = mainConfig.getDebug();
 		rt = mainConfig.getRedeemType();
+		lang = mainConfig.getLanguage();
+		language = new Language(this);
 		gm = new GroupWordManager(this);
 		
 		debug("Redeem Type: " + rt.toString());
 		debug("Variables setup");
 		
 		if (!isVaultEnabled() || !setupVault()) {
-			sendErr("The required plugin 'Vault' is not enabled, installed, or working properly. This plugin is required for WordRank to operate!");
-			sendErr("WordRank will now disable and will check for the plugin 'Vault' next time it's enabled.");
+			sendErr(Msg.Vault_Not_Found.toString());
+			sendErr(Msg.WR_Disable_Vault.toString());
 			server.getPluginManager().disablePlugin(this);
 			return;
 		}
 		debug("Vault has been properly setup");
 		if (rt.equals(RedeemType.Unknown)) {
-			sendErr("Redeem type is unknown, WordRank will disable. Check config and make sure 'redeem_type' is set to 'Chat' or 'Command'");
+			sendErr(Msg.RT_Unknown_Disable.toString());
 			server.getPluginManager().disablePlugin(this);
 			return;
 		}
@@ -87,24 +93,24 @@ public class WordRank extends JavaPlugin {
 			});
 			
 			if (metrics.start()) debug("Metrics setup successfully");
+			else
+				debug("Failed to submit stats");
 		} catch (IOException e) {
 			debug("Failed to submit stats");
 		}
-		
-		send("has successfully enabled!");
 	}
 	
 	public void onDisable() {
 		wordConfig.save();
-		
+		metrics = null;
 		server = null;
 		permission = null;
 		rt = null;
+		lang = null;
+		language = null;
 		gm = null;
 		mainConfig = null;
 		wordConfig = null;
-		
-		send("has disabled successfully!");
 	}
 	
 	private boolean isVaultEnabled() {
@@ -134,6 +140,14 @@ public class WordRank extends JavaPlugin {
 	
 	public RedeemType getRedeemType() {
 		return rt;
+	}
+	
+	public Languages getLang() {
+		return lang;
+	}
+	
+	public Language getLanguage() {
+		return language;
 	}
 	
 	public GroupWordManager getGroupWordManager() {
@@ -168,7 +182,7 @@ public class WordRank extends JavaPlugin {
 			if (permission.playerInGroup(player, w.getGroup()) && permission.getPlayerGroups(player).length > 1 || !permission.playerInGroup(player, w.getGroup())) {
 				if (w.getUses() == 0) {
 					if (rt.equals(RedeemType.Command)) {
-						player.sendMessage(ChatColor.RED + "This word is out of uses!");
+						player.sendMessage(Msg.Word_Used_Up.toString());
 						return false;
 					}
 				}
@@ -182,11 +196,10 @@ public class WordRank extends JavaPlugin {
 				permission.playerAddGroup(player, w.getGroup());
 				WordRank.debug("Added group '" + w.getGroup() + "' to player " + player.getName());
 				
-				if (w.getType().equals(GroupType.Set)) player.sendMessage(ChatColor.GOLD + "Your group has been set to " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup() + ". " + ChatColor.RED + "You may have to reconnect for changes to take effect.");
-				else if (w.getType().equals(GroupType.Add)) player.sendMessage(ChatColor.GOLD + "You have been added to the group " + ChatColor.BOLD + ChatColor.GREEN + w.getGroup() + ". " + ChatColor.RED + "You may have to reconnect for changes to take effect.");
+				if (w.getType().equals(GroupType.Set)) player.sendMessage(Msg.Group_Set_Success.toString() + ChatColor.GREEN + w.getGroup() + ". " + Msg.Relog.toString());
+				else if (w.getType().equals(GroupType.Add)) player.sendMessage(Msg.Group_Add_Success.toString() + ChatColor.GREEN + w.getGroup() + ". " + Msg.Relog.toString());
 				else {
-					player.sendMessage(ChatColor.RED + "You have redeemed the right word, but the Group Word Type is not 'Set' or 'Add'");
-					player.sendMessage(ChatColor.RED + "Please let an administrator know of this problem");
+					player.sendMessage(Msg.Err_Unknown_GT.toString());
 					WordRank.sendErr("GroupType for the word " + word + " is unknown, word will NOT work and has failed to set or add a group to " + player.getName());
 					return false;
 				}
@@ -198,12 +211,12 @@ public class WordRank extends JavaPlugin {
 				return true;
 			}
 			if (rt.equals(RedeemType.Command)) {
-				player.sendMessage(ChatColor.RED + "You are already in the group this word grants");
+				player.sendMessage(Msg.Already_In_Group.toString());
 			}
 			return false;
 		} else {
 			if (rt.equals(RedeemType.Command)) {
-				player.sendMessage(ChatColor.RED + "That word doesn't exist");
+				player.sendMessage(Msg.Word_Doesnt_Exist.toString());
 			}
 			return false;
 		}
@@ -211,21 +224,21 @@ public class WordRank extends JavaPlugin {
 	
 	public void help(CommandSender s) {
 		if (rt.equals(RedeemType.Chat)) {
-			s.sendMessage(ChatColor.DARK_RED + "|-- WordRank Commands You Can Use --|");
+			s.sendMessage(Msg.Help_LN1.toString());
 			if (s.hasPermission("WordRank.add")) { 
 				s.sendMessage(ChatColor.YELLOW + "/wr add [word] [group] (set|add) (# of uses)");
-				s.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
+				s.sendMessage(Msg.Help_Set_Add_Difference.toString());
 			}
 			if (s.hasPermission("WordRank.remove")) s.sendMessage(ChatColor.YELLOW + "/wr remove [word]");
 			if (s.hasPermission("WordRank.removeall")) s.sendMessage(ChatColor.YELLOW + "/wr removeall");
 			if (s.hasPermission("WordRank.info")) s.sendMessage(ChatColor.YELLOW + "/wr info [word]");
 			if (s.hasPermission("WordRank.list")) s.sendMessage(ChatColor.YELLOW + "/wr list");
 		} else {
-			s.sendMessage(ChatColor.DARK_RED + "|-- WordRank Commands You Can Use --|");
+			s.sendMessage(Msg.Help_LN1.toString());
 			if (s.hasPermission("WordRank.say")) s.sendMessage(ChatColor.YELLOW + "/wr redeem [word]");
 			if (s.hasPermission("WordRank.add")) { 
 				s.sendMessage(ChatColor.YELLOW + "/wr add [word] [group] (set|add) (# of uses)");
-				s.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
+				s.sendMessage(Msg.Help_Set_Add_Difference.toString());
 			}
 			if (s.hasPermission("WordRank.remove")) s.sendMessage(ChatColor.YELLOW + "/wr remove [word]");
 			if (s.hasPermission("WordRank.removeall")) s.sendMessage(ChatColor.YELLOW + "/wr removeall");
@@ -244,12 +257,15 @@ public class WordRank extends JavaPlugin {
 		if (args[0].equalsIgnoreCase("list") && args.length == 1) {
 			if (sender.hasPermission("WordRank.list")) {
 				if (gm.getWords() == null) {
-					sender.sendMessage(ChatColor.RED + "There are no words");
+					sender.sendMessage(Msg.No_Words_Found.toString());
 					return true;
 				} else {
-					sender.sendMessage(ChatColor.AQUA + "List of words: " + ChatColor.GOLD + gm.getWords().toString());
+					sender.sendMessage(Msg.List_Of_Words.toString() + ChatColor.GOLD + gm.getWords().toString());
 					return true;
 				}
+			} else {
+				sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.list)");
+				return true;
 			}
 		}
 		
@@ -257,7 +273,7 @@ public class WordRank extends JavaPlugin {
 			if (sender.hasPermission("WordRank.add")) {
 				if (!(args.length >= 3 && args.length <= 5)) {
 					sender.sendMessage(ChatColor.YELLOW + "/wr add [word] [group] (set|add) (# of uses)");
-					sender.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
+					sender.sendMessage(Msg.Help_Set_Add_Difference.toString());
 					return true;
 				}
 				GroupType gt = GroupType.Set;
@@ -267,36 +283,36 @@ public class WordRank extends JavaPlugin {
 				}
 				if (gt.equals(GroupType.Unknown)) {
 					sender.sendMessage(ChatColor.YELLOW + "/wr add [word] [group] (set|add) (# of uses)");
-					sender.sendMessage(ChatColor.GOLD + "Set(Default): Sets group, removes other groups | Add: adds the group leaving old group(s) | Uses: -1(Default) for unlimited");
+					sender.sendMessage(Msg.Help_Set_Add_Difference.toString());
 					return true;
 				}
 				if (args.length == 5) {
 					try {
 						uses = Integer.parseInt(args[4]);
 					} catch (NumberFormatException e) {
-						sender.sendMessage(ChatColor.GOLD + args[4] + ChatColor.RED + " is not a number!");
+						sender.sendMessage(Msg.Not_A_Number.toString());
 						return true;
 					}
 				}
 				GroupWord w = new GroupWord(args[1], args[2], gt, uses);
 				if (gm.wordExists(w.getName())) {
-					sender.sendMessage(ChatColor.RED + "That word already exists");
+					sender.sendMessage(Msg.Word_Already_Exists.toString());
 					return true;
 				} else {
 					if (!gm.addWordToConfig(w)) {
-						sender.sendMessage(ChatColor.RED + "Failed to add the word " + ChatColor.GOLD + w.getName() + ChatColor.RED + " to the config");
+						sender.sendMessage(Msg.Failed_Add_Word.toString());
 						return true;
 					} else {
-						sender.sendMessage(ChatColor.GREEN + "Success!");
+						sender.sendMessage(Msg.Success.toString());
 						sender.sendMessage(ChatColor.GREEN + "Name: " + ChatColor.GOLD + w.getName());
-						sender.sendMessage(ChatColor.GREEN + "Group: " + ChatColor.GOLD + w.getGroup());
+						sender.sendMessage(ChatColor.GREEN + Msg.Group.toString() + ": " + ChatColor.GOLD + w.getGroup());
 						sender.sendMessage(ChatColor.GREEN + "Type: " + ChatColor.GOLD + w.getType().toString());
 						sender.sendMessage(ChatColor.GREEN + "Uses: " + ChatColor.GOLD + w.getUses());
 						return true;
 					}
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.add)");
+				sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.add)");
 				return true;
 			}
 		}
@@ -310,14 +326,14 @@ public class WordRank extends JavaPlugin {
 				GroupWord w = gm.getWord(args[1]);
 				if (w != null) {
 					gm.removeWordFromConfig(w.getName());
-					sender.sendMessage(ChatColor.GOLD + w.getName() + ChatColor.GREEN + " has been removed.");
+					sender.sendMessage(ChatColor.GOLD + w.getName() + ChatColor.GREEN + Msg.Been_Removed.toString());
 					return true;
 				} else {
-					sender.sendMessage(ChatColor.RED + "That word doesn't exist");
+					sender.sendMessage(Msg.Word_Doesnt_Exist.toString());
 					return true;
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.remove)");
+				sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.remove)");
 				return true;
 			}
 		}
@@ -327,22 +343,22 @@ public class WordRank extends JavaPlugin {
 				if (args.length == 1) {
 					Set<String> list = gm.getWords();
 					int i = 0;
-					if (list.size() == 0) {
-						sender.sendMessage(ChatColor.RED + "There are no words to remove");
+					if (list == null || list.size() == 0) {
+						sender.sendMessage(Msg.No_Words_Found.toString());
 						return true;
 					}
 					for (String f:list) {
 						gm.removeWordFromConfig(f);
 						i++;
 					}
-					sender.sendMessage(ChatColor.GOLD + Integer.toString(i) + ChatColor.RED + " word(s) removed");
+					sender.sendMessage(ChatColor.GOLD + Integer.toString(i) + ChatColor.RED + Msg.Removed.toString());
 					return true;
 				} else {
 					sender.sendMessage(ChatColor.YELLOW + "/wr removeall");
 					return true;
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.removeall)");
+				sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.removeall)");
 				return true;
 			}
 		}
@@ -360,15 +376,15 @@ public class WordRank extends JavaPlugin {
 							return true;
 						}
 					} else {
-						sender.sendMessage(ChatColor.RED + "Redeem type is set to " + rt.toString() + " and not to Command");
+						sender.sendMessage(Msg.RT_Not_Command.toString());
 						return true;
 					}
 				} else {
-					sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.say)");
+					sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.say)");
 					return true;
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "You must be a player to redeem");
+				sender.sendMessage(Msg.Must_Be_Player.toString());
 				return true;
 			}
 		}
@@ -384,7 +400,7 @@ public class WordRank extends JavaPlugin {
 						sender.sendMessage(ChatColor.GREEN + "Uses: " + ChatColor.GOLD + w.getUses());
 						return true;
 					} else {
-						sender.sendMessage(ChatColor.RED + "That word doesn't exist");
+						sender.sendMessage(Msg.Word_Doesnt_Exist.toString());
 						return true;
 					}
 				} else {
@@ -392,7 +408,7 @@ public class WordRank extends JavaPlugin {
 					return true;
 				}
 			} else {
-				sender.sendMessage(ChatColor.RED + "You do not have permission (WordRank.info)");
+				sender.sendMessage(Msg.No_Permission.toString() + " (WordRank.info)");
 				return true;
 			}
 		}

@@ -1,13 +1,14 @@
 name: WordRank
-main: com.mike.wordrank.WordRank
-version: 3.0 Beta
+version: 3.0 Beta 2
 author: mike101102
+website: http://dev.bukkit.org/bukkit-plugins/wordrank/
+main: com.mike.wordrank.WordRank
 softdepend: [Vault]
 commands:
     wr:
         aliases: [wordrank]
         description: WordRank's main command
-        usuage: /<command>
+        usage: /<command>
 permissions:
     WordRank.*:
         description: Gives access to all WordRank permissions and commands

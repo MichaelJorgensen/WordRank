@@ -1,6 +1,6 @@
 package com.mike.wordrank.api.word;
 
-public class Word {
+public abstract class Word {
 
 	private String name;
 	private int uses;

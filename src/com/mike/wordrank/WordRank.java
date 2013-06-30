@@ -180,11 +180,14 @@ public class WordRank extends JavaPlugin {
 		String word = w.getName();
 		if (!(gm.getWords() == null) && gm.getWords().contains(word)) {
 			if (permission.playerInGroup(player, w.getGroup()) && permission.getPlayerGroups(player).length > 1 || !permission.playerInGroup(player, w.getGroup())) {
+				debug(w.getName() + w.getUses() + w.getGroup() + w.getType());
 				if (w.getUses() == 0) {
 					if (rt.equals(RedeemType.Command)) {
 						player.sendMessage(Msg.Word_Used_Up.toString());
 						return false;
 					}
+					else
+						return false;
 				}
 				if (EventHandle.callWordUseEvent(w, player).isCancelled()) return false;
 				String[] gr = permission.getPlayerGroups(player);

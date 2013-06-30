@@ -96,9 +96,9 @@ public class Language {
 			}
 			case Group: {
 				switch(lang) {
-				case French: return ChatColor.GOLD + "Groupe: "; // Google translate
-				case German: return ChatColor.GOLD + "Gruppe: "; // Google translate
-				case Spanish: return ChatColor.GOLD + "Grupo: "; // Google translate
+				case French: return "Groupe: "; // Google translate
+				case German: return "Gruppe: "; // Google translate
+				case Spanish: return "Grupo: "; // Google translate
 				default: return ChatColor.GOLD + "Group: ";
 				}
 			}

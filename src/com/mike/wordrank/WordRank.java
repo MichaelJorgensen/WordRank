@@ -305,7 +305,7 @@ public class WordRank extends JavaPlugin {
 					} else {
 						sender.sendMessage(Msg.Success.toString());
 						sender.sendMessage(ChatColor.GREEN + "Name: " + ChatColor.GOLD + w.getName());
-						sender.sendMessage(ChatColor.GREEN + Msg.Group.toString() + ": " + ChatColor.GOLD + w.getGroup());
+						sender.sendMessage(ChatColor.GREEN + Msg.Group.toString() + ChatColor.GOLD + w.getGroup());
 						sender.sendMessage(ChatColor.GREEN + "Type: " + ChatColor.GOLD + w.getType().toString());
 						sender.sendMessage(ChatColor.GREEN + "Uses: " + ChatColor.GOLD + w.getUses());
 						return true;
@@ -395,7 +395,7 @@ public class WordRank extends JavaPlugin {
 					if (gm.wordExists(args[1])) {
 						GroupWord w = gm.getWord(args[1]);
 						sender.sendMessage(ChatColor.GREEN + "Name: " + ChatColor.GOLD + w.getName());
-						sender.sendMessage(ChatColor.GREEN + Msg.Group.toString() + ": " + ChatColor.GOLD + w.getGroup());
+						sender.sendMessage(ChatColor.GREEN + Msg.Group.toString() + ChatColor.GOLD + w.getGroup());
 						sender.sendMessage(ChatColor.GREEN + "Type: " + ChatColor.GOLD + w.getType().toString());
 						sender.sendMessage(ChatColor.GREEN + "Uses: " + ChatColor.GOLD + w.getUses());
 						return true;

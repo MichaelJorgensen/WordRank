@@ -15,17 +15,17 @@ public class DebugListen implements Listener {
 		
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onWordUse(WordUseEvent event) {
 		WordRank.debug("Word use event called, Player: " + event.getPlayer().getName() + ", Word: " + event.getWord().getName() + ", Uses left: " + event.getWord().getUses() + ", Cancelled: " + event.isCancelled());
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onWordAddToConfig(WordAddToConfigEvent event) {
 		WordRank.debug("Word add to config event called, Word: " + event.getWord().getName() + ", Success: " + event.getSuccess() + ", Cancelled: " + event.isCancelled());
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onWordRemoveFromConfig(WordRemoveFromConfigEvent event) {
 		WordRank.debug("Word remove from config event called, Word: " + event.getWord().getName() + ", Success: " + event.getSuccess() + ", Cancelled: " + event.isCancelled());
 	}

@@ -99,7 +99,7 @@ public class Language {
 				case French: return "Groupe: "; // Google translate
 				case German: return "Gruppe: "; // Google translate
 				case Spanish: return "Grupo: "; // Google translate
-				default: return ChatColor.GOLD + "Group: ";
+				default: return "Group: ";
 				}
 			}
 			case Success: {
